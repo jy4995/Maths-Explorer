@@ -14,12 +14,19 @@ public class Arrange : MonoBehaviour
     public GameObject SubmitButton;
     public GameObject ResetButton;
     public GameObject Complete;
-    public GameObject CompleteText;
+    public GameObject CorrectPanel;
+    public GameObject WrongPanel;
 
     public AudioSource correctFX;
     public AudioSource wrongFX;
     public AudioSource button1;
     public AudioSource button2;
+
+    public GameObject currentScore;
+    public GameObject bestDisplay;
+    public int scoreValue;
+    public int bestScore;
+    
 
     private int[] QuestionNum = new int[5];
     private int[] QuestionNumSorted = new int[5];
@@ -28,9 +35,15 @@ public class Arrange : MonoBehaviour
     private bool Ascending = true;
     private bool NewQuestion = true;
 
-
-    void Update()
+    private void Start()
     {
+        bestScore = PlayerPrefs.GetInt("BestScoreAR");
+        bestDisplay.GetComponent<TMPro.TextMeshProUGUI>().text = "Best: " + bestScore;
+    }
+
+    private void Update()
+    {
+        currentScore.GetComponent<TMPro.TextMeshProUGUI>().text = "Score: " + scoreValue;
         StartCoroutine(PushTextOnScreen());
         for (int i = 0; i < 5; i++)
         {
@@ -92,25 +105,19 @@ public class Arrange : MonoBehaviour
         {
             if (CompareAnswer())
             {
-                Color color;
-                ColorUtility.TryParseHtmlString("#83FF65", out color);
-                Complete.GetComponent<Image>().color = color;
                 Complete.SetActive(true);
-                CompleteText.SetActive(true);
-                CompleteText.GetComponent<TMPro.TextMeshProUGUI>().text = "Correct Answer!\nNext Question!";
+                CorrectPanel.SetActive(true);
                 correctFX.Play();
+                scoreValue += 1;
                 StartCoroutine(HideComplete());
                 NewQuestion = true;
             }
             else
             {
-                Color color;
-                ColorUtility.TryParseHtmlString("#E24564", out color);
-                Complete.GetComponent<Image>().color = color;
                 Complete.SetActive(true);
-                CompleteText.SetActive(true);
-                CompleteText.GetComponent<TMPro.TextMeshProUGUI>().text = "Wrong Answer!\nPlease try again!";
+                WrongPanel.SetActive(true);
                 wrongFX.Play();
+                scoreValue = 0;
                 StartCoroutine(HideComplete());
                 ResetAll();
             }
@@ -146,6 +153,12 @@ public class Arrange : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
         if (NewQuestion)
         {
+            if (bestScore < scoreValue)
+            {
+                PlayerPrefs.SetInt("BestScoreAR", scoreValue);
+                bestScore = scoreValue;
+                bestDisplay.GetComponent<TMPro.TextMeshProUGUI>().text = "Best: " + scoreValue;
+            }
             NewQuestion = false;
             Ascending = Random.Range(0, 2) == 0;
             for (int i = 0; i < 5; i++)
@@ -183,6 +196,7 @@ public class Arrange : MonoBehaviour
     {
         yield return new WaitForSeconds(1);
         Complete.SetActive(false);
-        CompleteText.SetActive(false);
+        CorrectPanel.SetActive(false);
+        WrongPanel.SetActive(false);
     }
 }
