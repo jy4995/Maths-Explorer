@@ -30,6 +30,7 @@ public class GreaterSmaller : MonoBehaviour
 
     private void Start()
     {
+        displayingQuestion = false;
         //PlayerPrefs.SetInt("BestScoreGS", 0);
         bestScore = PlayerPrefs.GetInt("BestScoreGS");
         bestDisplay.GetComponent<TMPro.TextMeshProUGUI>().text = "Best: " + bestScore;
